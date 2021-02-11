@@ -8,39 +8,38 @@ const app = new App({
 
 
 // Listens to incoming messages that contain "hello"
-app.message('hello', async ({ message, client }) => {
+app.message('hello', async ({ message, say }) => {
     // say() sends a message to the channel where the event was triggered
     const ptime = new Date();
     ptime.setDate(ptime.getDate() - 10);
     ptime.setHours(9, 52, 9)
     console.log(ptime);
-    try {
-        const res = await client.chat.postMessage({
-            blocks: [
-                {
-                    "type": "section",
+    //try {
+    await say({
+        blocks: [
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": `Hello <@${message.user}>!. Are you ready to fill your daily standup?\n`
+                },
+                "accessory": {
+                    "type": "button",
                     "text": {
-                        "type": "mrkdwn",
-                        "text": `Hello <@${message.user}>!. Are you ready to fill your daily standup?\n`
+                        "type": "plain_text",
+                        "text": "Enter Standup"
                     },
-                    "accessory": {
-                        "type": "button",
-                        "text": {
-                            "type": "plain_text",
-                            "text": "Enter Standup"
-                        },
-                        "action_id": "button_click"
-                    }
+                    "action_id": "button_click"
                 }
-            ],
-            text: `Hey there <@${message.user}>!`,
-            //post_at: ptime.getTime()
-        });
-        console.log(res)
-    }
-    catch (error) {
-        console.error(error);
-    }
+            }
+        ],
+        text: `Hey there <@${message.user}>!`,
+        //post_at: ptime.getTime()
+    });
+    //}
+    //catch (error) {
+    //   console.error(error);
+    //}
 });
 
 // Listen for a slash command invocation
