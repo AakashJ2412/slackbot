@@ -15,7 +15,7 @@ app.message('hello', async ({ message, client }) => {
     ptime.setHours(9, 52, 9)
     console.log(ptime);
     try {
-        const res = await client.chat.scheduleMessage({
+        const res = await client.chat.postMessage({
             blocks: [
                 {
                     "type": "section",
@@ -34,7 +34,7 @@ app.message('hello', async ({ message, client }) => {
                 }
             ],
             text: `Hey there <@${message.user}>!`,
-            post_at: ptime.getTime()
+            //post_at: ptime.getTime()
         });
         console.log(res)
     }
