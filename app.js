@@ -1,7 +1,6 @@
 const { App } = require('@slack/bolt');
 const { processStepMiddleware } = require('@slack/bolt/dist/WorkflowStep');
 const { Client } = require('pg')
-const dbclient = new Client()
 
 const app = new App({
     token: process.env.SLACK_BOT_TOKEN,
@@ -168,7 +167,7 @@ app.view('view_1', async ({ ack, body, view, client }) => {
     else {
         console.log('Save Error')
     }
-
+    await dbclient.end();
     // Message the user
     try {
         await client.chat.postMessage({
