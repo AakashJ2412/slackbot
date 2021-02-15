@@ -17,12 +17,6 @@ const dbclient = new Client({
 
 // Listens to incoming messages that contain "hello"
 app.message('hello', async ({ message, say }) => {
-    // say() sends a message to the channel where the event was triggered
-    const ptime = new Date();
-    ptime.setDate(ptime.getDate() + 1);
-    ptime.setHours(9, 52, 9)
-    console.log(ptime);
-    //try {
     await say({
         blocks: [
             {
@@ -56,6 +50,8 @@ app.action('button_click', async ({ ack, body, client }) => {
 
     try {
         // Call views.open with the built-in client
+        const ures = await client.users.list();
+        console.log(ures);
         const result = await client.views.open({
             // Pass a valid trigger_id within 3 seconds of receiving it
             trigger_id: body.trigger_id,
