@@ -39,15 +39,32 @@ app.message('hello', async ({ message, say }) => {
 });
 
 app.message('send_reminder', async ({ message, client }) => {
-
+    await dbclient.connect();
+    const dbres = await dbclient.query('SELECT * FROM user_list');
+    if (dbres) {
+        console.log(dbres.rows);
+    }
+    else {
+        console.log('Get Error')
+    }
+    var uid = [];
+    var uname = [];
+    dbres.rows.forEach(function (element) {
+        uid.push(element.userid);
+        uname.push(element.username);
+    });
+    await dbclient.end();
+    console.log(uid);
+    console.log(uname);
     try {
         await client.chat.postMessage({
+            channel: uid[1],
             blocks: [
                 {
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": `Hello <@${message.user}>!. Are you ready to fill your daily standup?\n`
+                        "text": `Hello <@${uid[1]}>!. Are you ready to fill your daily standup?\n`
                     },
                     "accessory": {
                         "type": "button",
@@ -73,23 +90,6 @@ app.action('button_click', async ({ ack, body, client }) => {
 
     try {
         // Call views.open with the built-in client
-        await dbclient.connect();
-        const dbres = await dbclient.query('SELECT * FROM user_list');
-        if (dbres) {
-            console.log(dbres.rows);
-        }
-        else {
-            console.log('Get Error')
-        }
-        var uid = [];
-        var uname = [];
-        dbres.rows.forEach(function (element){
-            uid.push(element.userid);
-            uname.push(element.username);
-        });
-        await dbclient.end();
-        console.log(uid);
-        console.log(uname);
         const result = await client.views.open({
             // Pass a valid trigger_id within 3 seconds of receiving it
             trigger_id: body.trigger_id,
