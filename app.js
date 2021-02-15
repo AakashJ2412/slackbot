@@ -16,7 +16,7 @@ const dbclient = new Client({
 
 
 // Listens to incoming messages that contain "hello"
-app.message('hello', async ({ message, say }) => {
+app.message('remind_me', async ({ message, say }) => {
     await say({
         blocks: [
             {
@@ -41,10 +41,7 @@ app.message('hello', async ({ message, say }) => {
 app.message('send_reminder', async ({ message, client }) => {
     await dbclient.connect();
     const dbres = await dbclient.query('SELECT * FROM user_list');
-    if (dbres) {
-        console.log(dbres.rows);
-    }
-    else {
+    if (!dbres) {
         console.log('Get Error')
     }
     var uid = [];
@@ -54,29 +51,29 @@ app.message('send_reminder', async ({ message, client }) => {
         uname.push(element.username);
     });
     await dbclient.end();
-    console.log(uid);
-    console.log(uname);
     try {
-        await client.chat.postMessage({
-            channel: uid[1],
-            blocks: [
-                {
-                    "type": "section",
-                    "text": {
-                        "type": "mrkdwn",
-                        "text": `Hello <@${uid[1]}>!. Are you ready to fill your daily standup?\n`
-                    },
-                    "accessory": {
-                        "type": "button",
+        for (var i = 0; i < uid.length; i++) {
+            await client.chat.postMessage({
+                channel: uid[i],
+                blocks: [
+                    {
+                        "type": "section",
                         "text": {
-                            "type": "plain_text",
-                            "text": "Enter Standup"
+                            "type": "mrkdwn",
+                            "text": `Hello <@${uid[i]}>!. Are you ready to fill your daily standup?\n`
                         },
-                        "action_id": "button_click"
+                        "accessory": {
+                            "type": "button",
+                            "text": {
+                                "type": "plain_text",
+                                "text": "Enter Standup"
+                            },
+                            "action_id": "button_click"
+                        }
                     }
-                }
-            ]
-        });
+                ]
+            });
+        }
     }
     catch (error) {
         console.error(error);
@@ -196,7 +193,7 @@ app.view('view_1', async ({ ack, body, view, client }) => {
     await dbclient.connect();
     const dbres = await dbclient.query('INSERT INTO standups(userid,username,yes_task,yes_adhoc,today_task,blocker) VALUES($1,$2,$3,$4,$5,$6) RETURNING *', [user, username, yes_task, yes_adhoc, today_task, blocker])
     if (dbres) {
-        console.log(dbres.rows[0].message)
+        console.log(dbres.rows[0])
     }
     else {
         console.log('Save Error')
