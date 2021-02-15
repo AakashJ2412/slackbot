@@ -35,12 +35,35 @@ app.message('hello', async ({ message, say }) => {
                 }
             }
         ]
-        //post_at: ptime.getTime()
     });
-    //}
-    //catch (error) {
-    //   console.error(error);
-    //}
+});
+
+app.message('send_reminder', async ({ message, client }) => {
+
+    try {
+        await client.chat.postMessage({
+            blocks: [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": `Hello <@${message.user}>!. Are you ready to fill your daily standup?\n`
+                    },
+                    "accessory": {
+                        "type": "button",
+                        "text": {
+                            "type": "plain_text",
+                            "text": "Enter Standup"
+                        },
+                        "action_id": "button_click"
+                    }
+                }
+            ]
+        });
+    }
+    catch (error) {
+        console.error(error);
+    }
 });
 
 // Listen for a slash command invocation
@@ -50,8 +73,15 @@ app.action('button_click', async ({ ack, body, client }) => {
 
     try {
         // Call views.open with the built-in client
-        const ures = await client.users.list();
-        console.log(ures);
+        await dbclient.connect();
+        const dbres = await dbclient.query('SELECT * FROM user_list');
+        if (dbres) {
+            console.log(dbres.rows[0]);
+        }
+        else {
+            console.log('Get Error')
+        }
+        await dbclient.end();
         const result = await client.views.open({
             // Pass a valid trigger_id within 3 seconds of receiving it
             trigger_id: body.trigger_id,
