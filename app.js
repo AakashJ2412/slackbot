@@ -84,8 +84,8 @@ app.action('button_click', async ({ ack, body, client }) => {
         var uid = [];
         var uname = [];
         dbres.rows.forEach(function (element){
-            uid.push(element[0]);
-            uname.push(element[1]);
+            uid.push(element.userid);
+            uname.push(element.username);
         });
         await dbclient.end();
         console.log(uid);
