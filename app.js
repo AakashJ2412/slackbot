@@ -76,12 +76,20 @@ app.action('button_click', async ({ ack, body, client }) => {
         await dbclient.connect();
         const dbres = await dbclient.query('SELECT * FROM user_list');
         if (dbres) {
-            console.log(dbres.rows[0]);
+            console.log(dbres.rows);
         }
         else {
             console.log('Get Error')
         }
+        var uid = [];
+        var uname = [];
+        dbres.rows.forEach(function (element){
+            uid.push(element[0]);
+            uname.push(element[1]);
+        });
         await dbclient.end();
+        console.log(uid);
+        console.log(uname);
         const result = await client.views.open({
             // Pass a valid trigger_id within 3 seconds of receiving it
             trigger_id: body.trigger_id,
