@@ -1,9 +1,18 @@
 const { App } = require('@slack/bolt');
 const { processStepMiddleware } = require('@slack/bolt/dist/WorkflowStep');
+const { Client } = require('pg')
+const dbclient = new Client()
 
 const app = new App({
     token: process.env.SLACK_BOT_TOKEN,
     signingSecret: process.env.SLACK_SIGNING_SECRET
+});
+
+const dbclient = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
 
 
@@ -11,7 +20,7 @@ const app = new App({
 app.message('hello', async ({ message, say }) => {
     // say() sends a message to the channel where the event was triggered
     const ptime = new Date();
-    ptime.setDate(ptime.getDate() - 10);
+    ptime.setDate(ptime.getDate() + 1);
     ptime.setHours(9, 52, 9)
     console.log(ptime);
     //try {
@@ -32,8 +41,7 @@ app.message('hello', async ({ message, say }) => {
                     "action_id": "button_click"
                 }
             }
-        ],
-        text: `Hey there <@${message.user}>!`,
+        ]
         //post_at: ptime.getTime()
     });
     //}
@@ -152,15 +160,14 @@ app.view('view_1', async ({ ack, body, view, client }) => {
     let img = ret.profile.image_original
     const username = body['user']['username'];
     var todaydate = new Date();
-    // Save to DB
-    //const results = await db.set(user.input, val);
-
-    //if (results) {
-    //    // DB save was successful
-    //    msg = 'Your submission was successful';
-    //} else {
-    //    msg = 'There was an error with your submission';
-    //}
+    await dbclient.connect();
+    const dbres = await dbclient.query('INSERT INTO standups(userid,username,yes_task,yes_adhoc,today_task,blocker) VALUES($1,$2,$3,$4,$5,$6) RETURNING *', [user, username, yes_task, yes_adhoc, today_task, blocker])
+    if (dbres) {
+        console.log(dbres.rows[0].message)
+    }
+    else {
+        console.log('Save Error')
+    }
 
     // Message the user
     try {
