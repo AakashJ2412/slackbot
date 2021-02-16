@@ -38,7 +38,7 @@ app.message('remind_me', async ({ message, say }) => {
     });
 });
 
-app.event('app_mention', async ({ event, client }) => {
+app.event('app_mention', async ({ event, say, client }) => {
     let message = event.text;
     message = message.trim();
     var pos = message.indexOf("add_user");
