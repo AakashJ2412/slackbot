@@ -38,20 +38,78 @@ app.message('remind_me', async ({ message, say }) => {
     });
 });
 
-app.command('/add_user', async ({ command, ack, say }) => {
-    // Acknowledge command request
-    await ack();
-
-    await say(`${command.text}`);
+app.event('app_mention', async ({ event, client }) => {
+    let message = event.text;
+    message = message.trim();
+    var pos = message.indexOf("add_user");
+    if (pos != -1) {
+        var uid = [];
+        for (var i = pos + 8; i < message.length; i++) {
+            if (message[i] == ' ' || message[i] == '<' || message[i] == '>' || message[i] == '@')
+                continue;
+            uid.append[message[i]]
+        }
+        console.log(uid);
+        try {
+            const ret = await client.users.profile.get({
+                user: uid
+            });
+            let uname = ret.profile.display_name;
+            await dbclient.connect();
+            const dbres = await dbclient.query('INSERT INTO user_list(userid,username) VALUES($1,$2) RETURNING *', [uid, uname]);
+            if (!dbres) {
+                console.log('Get Error')
+            }
+            await dbclient.end();
+            await say({
+                blocks: [
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": `User <@${uid}> has been successfully added to standup list.`
+                        }
+                    }
+                ]
+            });
+        }
+        catch (error) {
+            console.error(error);
+        }
+    }
+    pos = message.indexOf("delete_user");
+    if (pos != -1) {
+        var uid = [];
+        for (var i = pos + 8; i < message.length; i++) {
+            if (message[i] == ' ' || message[i] == '<' || message[i] == '>' || message[i] == '@')
+                continue;
+            uid.append[message[i]]
+        }
+        console.log(uid);
+        try {
+            await dbclient.connect();
+            const dbres = await dbclient.query('DELETE FROM user_list WHERE userid=$1', [uid]);
+            if (!dbres) {
+                console.log('User not found');
+            }
+            await dbclient.end();
+            await say({
+                blocks: [
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": `User <@${uid}> has been successfully deleted from standup list.`
+                        }
+                    }
+                ]
+            });
+        }
+        catch (error) {
+            console.error(error);
+        }
+    }
 });
-
-app.command('/delete_user', async ({ command, ack, say }) => {
-    // Acknowledge command request
-    await ack();
-
-    await say(`${command.text}`);
-});
-
 
 app.message('send_reminder', async ({ message, client }) => {
     await dbclient.connect();
