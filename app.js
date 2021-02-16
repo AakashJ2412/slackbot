@@ -47,7 +47,7 @@ app.event('app_mention', async ({ event, client }) => {
         for (var i = pos + 8; i < message.length; i++) {
             if (message[i] == ' ' || message[i] == '<' || message[i] == '>' || message[i] == '@')
                 continue;
-            uid.append[message[i]]
+            uid.push[message[i]]
         }
         console.log(uid);
         try {
@@ -83,7 +83,7 @@ app.event('app_mention', async ({ event, client }) => {
         for (var i = pos + 8; i < message.length; i++) {
             if (message[i] == ' ' || message[i] == '<' || message[i] == '>' || message[i] == '@')
                 continue;
-            uid.append[message[i]]
+            uid.push[message[i]]
         }
         console.log(uid);
         try {
