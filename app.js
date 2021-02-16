@@ -38,6 +38,21 @@ app.message('remind_me', async ({ message, say }) => {
     });
 });
 
+app.command('/add_user', async ({ command, ack, say }) => {
+    // Acknowledge command request
+    await ack();
+
+    await say(`${command.text}`);
+});
+
+app.command('/delete_user', async ({ command, ack, say }) => {
+    // Acknowledge command request
+    await ack();
+
+    await say(`${command.text}`);
+});
+
+
 app.message('send_reminder', async ({ message, client }) => {
     await dbclient.connect();
     const dbres = await dbclient.query('SELECT * FROM user_list');
