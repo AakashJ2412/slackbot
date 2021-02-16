@@ -39,6 +39,7 @@ app.message('remind_me', async ({ message, say }) => {
 });
 
 app.event('app_mention', async ({ event, say, client }) => {
+    dbclient.connect();
     let message = event.text;
     message = message.trim();
     var pos = message.indexOf("add_user");
@@ -55,12 +56,21 @@ app.event('app_mention', async ({ event, say, client }) => {
                 user: uid
             });
             let uname = ret.profile.display_name;
-            await dbclient.connect();
             const dbres = await dbclient.query('INSERT INTO user_list(userid,username) VALUES($1,$2) RETURNING *', [uid, uname]);
             if (!dbres) {
-                console.log('Get Error')
+                console.log('Get Error');
+                await say({
+                    blocks: [
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": `User <@${uid}> not added to standup list.`
+                            }
+                        }
+                    ]
+                });
             }
-            await dbclient.end();
             await say({
                 blocks: [
                     {
@@ -87,28 +97,40 @@ app.event('app_mention', async ({ event, say, client }) => {
         }
         console.log(uid);
         try {
-            await dbclient.connect();
             const dbres = await dbclient.query('DELETE FROM user_list WHERE userid=$1', [uid]);
-            if (!dbres) {
+            if (dbres === "DELETE 0") {
                 console.log('User not found');
-            }
-            await dbclient.end();
-            await say({
-                blocks: [
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": `User <@${uid}> has been successfully deleted from standup list.`
+                await say({
+                    blocks: [
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": `User <@${uid}> not found in standup list.`
+                            }
                         }
-                    }
-                ]
-            });
+                    ]
+                });
+            }
+            else {
+                await say({
+                    blocks: [
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": `User <@${uid}> has been successfully deleted from standup list.`
+                            }
+                        }
+                    ]
+                });
+            }
         }
         catch (error) {
             console.error(error);
         }
     }
+    dbclient.end();
 });
 
 app.message('send_reminder', async ({ message, client }) => {
