@@ -43,11 +43,11 @@ app.event('app_mention', async ({ event, say, client }) => {
     message = message.trim();
     var pos = message.indexOf("add_user");
     if (pos != -1) {
-        var uid = [];
+        var uid = "";
         for (var i = pos + 8; i < message.length; i++) {
             if (message[i] === ' ' || message[i] === '<' || message[i] === '>' || message[i] === '@')
                 continue;
-            uid.push(message[i]);
+            uid.concat(message[i]);
         }
         console.log(uid);
         try {
@@ -79,11 +79,11 @@ app.event('app_mention', async ({ event, say, client }) => {
     }
     pos = message.indexOf("delete_user");
     if (pos != -1) {
-        var uid = [];
+        var uid = "";
         for (var i = pos + 11; i < message.length; i++) {
             if (message[i] === ' ' || message[i] === '<' || message[i] === '>' || message[i] === '@')
                 continue;
-            uid.push(message[i]);
+            uid.concat(message[i]);
         }
         console.log(uid);
         try {
