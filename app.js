@@ -195,7 +195,7 @@ app.message('send_reminder', async ({ message, client }) => {
     }
 });
 
-app.message('send_reminder_update', async ({ message, client }) => {
+app.message('send_rem_update', async ({ message, client }) => {
     const dbstdres = await dbclient.query("SELECT * FROM standups WHERE date > (now() - '12 hours'::interval)");
     if (!dbstdres) {
         console.log('Get Error')
