@@ -195,6 +195,47 @@ app.message('send_reminder', async ({ message, client }) => {
     }
 });
 
+app.message('send_reminder_update', async ({ message, client }) => {
+    const dbstdres = await dbclient.query("SELECT * FROM standups WHERE date > (now() - '12 hours'::interval)");
+    if (!dbstdres) {
+        console.log('Get Error')
+    }
+    const dbres = await dbclient.query('SELECT * FROM user_list');
+    if (!dbres) {
+        console.log('Get Error')
+    }
+    var stduid = [];
+    var uid = [];
+    dbres.rows.forEach(function (element) {
+        uid.push(element.userid);
+    });
+    dbstdres.rows.forEach(function (element) {
+        stduid.push(element.userid);
+    });
+    var finuid = uid.filter(function (element) {
+        return stduid.indexOf(element) == -1;
+    });
+    try {
+        for (var i = 0; i < finuid.length; i++) {
+            await client.chat.postMessage({
+                channel: uid[i],
+                blocks: [
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": `Hello <@${uid[i]}>!. Please be sure to fill the daily standup by the end of the day.\n`
+                        }
+                    }
+                ]
+            });
+        }
+    }
+    catch (error) {
+        console.error(error);
+    }
+});
+
 // Listen for a slash command invocation
 app.action('button_click', async ({ ack, body, client }) => {
     // Acknowledge the command request
