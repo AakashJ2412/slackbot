@@ -14,7 +14,6 @@ const dbclient = new Client({
     }
 });
 
-
 // Listens to incoming messages that contain "hello"
 app.message('remind_me', async ({ message, say }) => {
     await say({
@@ -39,7 +38,6 @@ app.message('remind_me', async ({ message, say }) => {
 });
 
 app.event('app_mention', async ({ event, say, client }) => {
-    dbclient.connect();
     let message = event.text;
     message = message.trim();
     var pos = message.indexOf("add_user");
@@ -130,11 +128,9 @@ app.event('app_mention', async ({ event, say, client }) => {
             console.error(error);
         }
     }
-    dbclient.end();
 });
 
 app.message('send_reminder', async ({ message, client }) => {
-    await dbclient.connect();
     const dbres = await dbclient.query('SELECT * FROM user_list');
     if (!dbres) {
         console.log('Get Error')
@@ -145,7 +141,6 @@ app.message('send_reminder', async ({ message, client }) => {
         uid.push(element.userid);
         uname.push(element.username);
     });
-    await dbclient.end();
     try {
         for (var i = 0; i < uid.length; i++) {
             await client.chat.postMessage({
@@ -285,7 +280,6 @@ app.view('view_1', async ({ ack, body, view, client }) => {
     let img = ret.profile.image_original
     const username = body['user']['username'];
     var todaydate = new Date();
-    await dbclient.connect();
     const dbres = await dbclient.query('INSERT INTO standups(userid,username,yes_task,yes_adhoc,today_task,blocker) VALUES($1,$2,$3,$4,$5,$6) RETURNING *', [user, username, yes_task, yes_adhoc, today_task, blocker])
     if (dbres) {
         console.log(dbres.rows[0])
@@ -293,7 +287,6 @@ app.view('view_1', async ({ ack, body, view, client }) => {
     else {
         console.log('Save Error')
     }
-    await dbclient.end();
     // Message the user
     try {
         await client.chat.postMessage({
@@ -426,5 +419,6 @@ app.view('view_1', async ({ ack, body, view, client }) => {
 (async () => {
     // Start your app
     await app.start(process.env.PORT || 3000);
+    await dbclient.connect()
     console.log('⚡️ Bolt app is running!');
 })();
