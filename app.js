@@ -128,6 +128,31 @@ app.event('app_mention', async ({ event, say, client }) => {
             console.error(error);
         }
     }
+    pos = message.indexOf("get_users");
+    if (pos != -1) {
+        const dbres = await dbclient.query('SELECT * FROM user_list');
+        var users = "";
+        dbres.rows.forEach(function (element) {
+            users = users.concat(element.username);
+            users = users.concat('\n');
+        });
+        try {
+            await say({
+                blocks: [
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": `Users in the standup list:\n${users}`
+                        }
+                    }
+                ]
+            });
+        }
+        catch (error) {
+            console.error(error);
+        }
+    }
 });
 
 app.message('send_reminder', async ({ message, client }) => {
