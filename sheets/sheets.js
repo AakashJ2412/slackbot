@@ -98,9 +98,11 @@ function adduser() {
 function adduserlist(auth) {
   flag = 0
   user_list.forEach((elem) => {
-    if (elem[0] == inp_params[0])
+    if (elem[0] === inp_params[0])
       flag = 1;
   });
+  console.log(flag)
+  console.log('inp',inp_params);
   if (flag === 1 || inp_params == []) {
     console.log('Error, user not added');
     return -1;

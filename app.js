@@ -60,6 +60,7 @@ app.event('app_mention', async ({ event, say, client }) => {
             let uname = ret.profile.display_name;
             sheets.updateinp([uid, uname]);
             await new Promise(r => setTimeout(r, 500));
+            console.log(sheets.inp_params);
             sheets.adduser();
             await new Promise(r => setTimeout(r, 500));
             sheets.getusers();
