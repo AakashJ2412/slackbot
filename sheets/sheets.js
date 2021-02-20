@@ -145,7 +145,7 @@ function addstanduplist(auth) {
   console.log('this is', inp_params);
   sheets.spreadsheets.values.append({
     spreadsheetId: '1VzQesOzwkONYPdKOXnZUmWoWDTzCu_W1hvmq9m41MoQ',
-    range: 'standups!A2:G',
+    range: 'standups!A2:H',
     insertDataOption: 'INSERT_ROWS',
     valueInputOption: 'RAW',
     resource: {

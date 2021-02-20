@@ -348,8 +348,9 @@ app.view('view_1', async ({ ack, body, view, client }) => {
     let img = ret.profile.image_original
     const username = body['user']['username'];
     var todaydate = new Date();
+    var epochdate = Date.now();
     var inp_dat = helpers.GetFormattedDate();
-    sheets.updateinp([user, username, inp_dat, yes_task, yes_adhoc, today_task, blocker]);
+    sheets.updateinp([user, username, inp_dat, epochdate, yes_task, yes_adhoc, today_task, blocker]);
     sheets.addstandup()
     try {
         await client.chat.postMessage({
@@ -482,7 +483,7 @@ app.view('view_1', async ({ ack, body, view, client }) => {
 (async () => {
     // Start your app
     sheets.getusers();
-    await new Promise(r => setTimeout(r, 2000));
+    await new Promise(r => setTimeout(r, 1000));
     console.log(sheets.user_list);
     sheets.adduser();
     await app.start(process.env.PORT || 3000);
