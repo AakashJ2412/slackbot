@@ -58,7 +58,7 @@ app.event('app_mention', async ({ event, say, client }) => {
                 user: uid
             });
             let uname = ret.profile.display_name;
-            sheets.updateinp([uid, uname]);
+            sheets.inp_params = [uid, uname];
             sheets.adduser();
             sheets.getusers();
             await say({

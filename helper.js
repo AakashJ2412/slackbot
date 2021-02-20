@@ -1,9 +1,9 @@
 function GetFormattedDate() {
     var todayTime = new Date();
-    var month = (todayTime .getMonth() + 1).toString;
-    var day = (todayTime .getDate()).toString;
-    var year = (todayTime .getFullYear()).toString;
-    return (month + "/" + day + "/" + year).toString();
+    var month = (todayTime .getMonth() + 1);
+    var day = (todayTime .getDate());
+    var year = (todayTime .getFullYear());
+    return (day + "/" + month + "/" + year);
 }
 
 module.exports = {
