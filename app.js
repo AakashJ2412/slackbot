@@ -5,6 +5,7 @@ const fs = require('fs');
 const readline = require('readline');
 const {google} = require('googleapis');
 var sheets = require('./sheets/sheets.js');
+var helpers = require('./helper.js');
 const app = new App({
     token: process.env.SLACK_BOT_TOKEN,
     signingSecret: process.env.SLACK_SIGNING_SECRET
@@ -16,14 +17,6 @@ const dbclient = new Client({
         rejectUnauthorized: false
     }
 });
-
-function GetFormattedDate() {
-    var todayTime = new Date();
-    var month = format(todayTime .getMonth() + 1);
-    var day = format(todayTime .getDate());
-    var year = format(todayTime .getFullYear());
-    return month + "/" + day + "/" + year;
-}
 
 // Listens to incoming messages that contain "hello"
 app.message('remind_me', async ({ message, say }) => {
@@ -67,6 +60,7 @@ app.event('app_mention', async ({ event, say, client }) => {
             let uname = ret.profile.display_name;
             sheets.inp_params = [uid,uname];
             sheets.adduser();
+            sheets.getusers();
             await say({
                 blocks: [
                     {
@@ -93,6 +87,12 @@ app.event('app_mention', async ({ event, say, client }) => {
         }
         console.log(uid);
         try {
+            var del_id = -1;
+            for (var i = 0; i<sheets.user_list.length;i++) {
+                if (uid.localeCompare(sheets.user_list[i][0]) === 0)
+                    del_id = i;
+            }
+            
             const dbres = await dbclient.query('DELETE FROM user_list WHERE userid=$1', [uid]);
             if (dbres === "DELETE 0") {
                 console.log('User not found');
@@ -344,8 +344,8 @@ app.view('view_1', async ({ ack, body, view, client }) => {
     let img = ret.profile.image_original
     const username = body['user']['username'];
     var todaydate = new Date();
-    var dat = GetFormattedDate();
-    sheets.inp_params = [user,username,dat,yes_task,yes_adhoc,today_task,blocker];
+    var inp_dat = GetFormattedDate();
+    sheets.inp_params = [user,username,inp_dat,yes_task,yes_adhoc,today_task,blocker];
     sheets.addstandup()
     try {
         await client.chat.postMessage({

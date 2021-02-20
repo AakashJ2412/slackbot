@@ -98,10 +98,10 @@ function adduser() {
 function adduserlist(auth) {
   flag = 0
   user_list.forEach((elem) => {
-    if(elem[0] == inp_params[0])
+    if (elem[0] == inp_params[0])
       flag = 1;
   });
-  if (flag === 1 || inp_params == []){
+  if (flag === 1 || inp_params == []) {
     console.log('Error, user not added');
     return -1;
   }
@@ -115,7 +115,7 @@ function adduserlist(auth) {
       'values': [inp_params]
     }
   }, (err, res) => {
-    if (err) 
+    if (err)
       return console.log('The API returned an error: ' + err);
     if (res) {
       console.log('Entry added successfully');
@@ -131,11 +131,11 @@ function addstandup() {
   fs.readFile('./sheets/credentials.json', (err, content) => {
     if (err) return console.log('Error loading client secret file:', err);
     // Authorize a client with credentials, then call the Google Sheets API.
-    authorize(JSON.parse(content), adduserlist);
+    authorize(JSON.parse(content), addstanduplist);
   });
 }
 function addstanduplist(auth) {
-  if (inp_params == []){
+  if (inp_params == []) {
     console.log('Error, user not added');
     return -1;
   }
@@ -149,7 +149,7 @@ function addstanduplist(auth) {
       'values': [inp_params]
     }
   }, (err, res) => {
-    if (err) 
+    if (err)
       return console.log('The API returned an error: ' + err);
     if (res) {
       console.log('Entry added successfully');
@@ -160,6 +160,53 @@ function addstanduplist(auth) {
   return 0;
 }
 
+function deluser() {
+  // Load client secrets from a local file.
+  fs.readFile('./sheets/credentials.json', (err, content) => {
+    if (err) return console.log('Error loading client secret file:', err);
+    // Authorize a client with credentials, then call the Google Sheets API.
+    authorize(JSON.parse(content), deluserlist);
+  });
+}
+function deluserlist(auth) {
+  if (inp_params == []) {
+    console.log('Error, user not deleted');
+    return -1;
+  }
+  const sheets = google.sheets({ version: 'v4', auth });
+  sheets.spreadsheets.batchUpdate({
+    spreadsheetId: '1VzQesOzwkONYPdKOXnZUmWoWDTzCu_W1hvmq9m41MoQ',
+    resource: {
+      "requests":
+        [
+          {
+            "deleteRange":
+            {
+              "range":
+              {
+                "sheetId": 0, // gid
+                "startRowIndex": inp_params[0],
+                "endRowIndex": inp_params[0]+1
+              },
+              "shiftDimension": "ROWS"
+            }
+          }
+        ]
+    }
+  }, (err, res) => {
+    if (err)
+      return console.log('The API returned an error: ' + err);
+    if (res) {
+      console.log('Entry deleted successfully');
+    } else {
+      console.log('No data found.');
+    }
+  });
+  return 0;
+}
+
+
+
 module.exports = {
   authorize,
   getNewToken,
@@ -169,6 +216,8 @@ module.exports = {
   inp_params,
   adduser,
   adduserlist,
+  deluser,
+  deluserlist,
   addstandup,
   addstanduplist
 }
