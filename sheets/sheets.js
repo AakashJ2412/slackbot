@@ -135,7 +135,7 @@ function addstandup() {
   });
 }
 function addstanduplist(auth) {
-  if (inp_params == []) {
+  if (inp_params === []) {
     console.log('Error, standup not added');
     return -1;
   }
@@ -170,7 +170,7 @@ function deluser() {
   });
 }
 function deluserlist(auth) {
-  if (inp_params == []) {
+  if (inp_params === []) {
     console.log('Error, user not deleted');
     return -1;
   }
@@ -207,7 +207,9 @@ function deluserlist(auth) {
   return 0;
 }
 
-
+function updateinp(elem) {
+  inp_params = elem;
+}
 
 module.exports = {
   authorize,
@@ -221,5 +223,6 @@ module.exports = {
   deluser,
   deluserlist,
   addstandup,
-  addstanduplist
+  addstanduplist,
+  updateinp
 }

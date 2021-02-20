@@ -3,7 +3,7 @@ const { processStepMiddleware } = require('@slack/bolt/dist/WorkflowStep');
 const { Client } = require('pg')
 const fs = require('fs');
 const readline = require('readline');
-const {google} = require('googleapis');
+const { google } = require('googleapis');
 var sheets = require('./sheets/sheets.js');
 var helpers = require('./helper.js');
 const app = new App({
@@ -58,7 +58,7 @@ app.event('app_mention', async ({ event, say, client }) => {
                 user: uid
             });
             let uname = ret.profile.display_name;
-            sheets.inp_params = [uid,uname];
+            sheets.updateinp([uid, uname]);
             sheets.adduser();
             sheets.getusers();
             await say({
@@ -88,7 +88,7 @@ app.event('app_mention', async ({ event, say, client }) => {
         console.log(uid);
         try {
             var del_id = -1;
-            for (var i = 0; i<sheets.user_list.length;i++) {
+            for (var i = 0; i < sheets.user_list.length; i++) {
                 if (uid.localeCompare(sheets.user_list[i][0]) === 0)
                     del_id = i;
             }
@@ -107,7 +107,7 @@ app.event('app_mention', async ({ event, say, client }) => {
                 });
             }
             else {
-                sheets.inp_params = [del_id];
+                sheets.updateinp([del_id]);
                 console.log(sheets.inp_params);
                 sheets.deluser();
                 await say({
@@ -129,7 +129,7 @@ app.event('app_mention', async ({ event, say, client }) => {
     }
     pos = message.indexOf("get_users");
     if (pos != -1) {
-        if (! sheets.user_list){
+        if (!sheets.user_list) {
             console.log('Get Error')
         }
         var users = "";
@@ -346,7 +346,7 @@ app.view('view_1', async ({ ack, body, view, client }) => {
     const username = body['user']['username'];
     var todaydate = new Date();
     var inp_dat = helpers.GetFormattedDate();
-    sheets.inp_params = [user,username,inp_dat,yes_task,yes_adhoc,today_task,blocker];
+    sheets.updateinp([user, username, inp_dat, yes_task, yes_adhoc, today_task, blocker]);
     sheets.addstandup()
     try {
         await client.chat.postMessage({
@@ -479,7 +479,7 @@ app.view('view_1', async ({ ack, body, view, client }) => {
 (async () => {
     // Start your app
     sheets.getusers();
-    await new Promise(r => setTimeout(r,2000));
+    await new Promise(r => setTimeout(r, 2000));
     console.log(sheets.user_list);
     sheets.adduser();
     await app.start(process.env.PORT || 3000);
