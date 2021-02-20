@@ -344,8 +344,9 @@ app.view('view_1', async ({ ack, body, view, client }) => {
     let img = ret.profile.image_original
     const username = body['user']['username'];
     var todaydate = new Date();
-    sheets.inp_params = [user,username,GetFormattedDate(),yes_task,yes_adhoc,today_task,blocker];
-    sheets.addstandup();
+    var dat = GetFormattedDate();
+    sheets.inp_params = [user,username,dat,yes_task,yes_adhoc,today_task,blocker];
+    sheets.addstandup()
     try {
         await client.chat.postMessage({
             channel: 'C01LX5S6AHM',
