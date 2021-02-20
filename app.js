@@ -1,7 +1,10 @@
 const { App } = require('@slack/bolt');
 const { processStepMiddleware } = require('@slack/bolt/dist/WorkflowStep');
 const { Client } = require('pg')
-
+const fs = require('fs');
+const readline = require('readline');
+const {google} = require('googleapis');
+var sheets = require('./sheets/sheets.js');
 const app = new App({
     token: process.env.SLACK_BOT_TOKEN,
     signingSecret: process.env.SLACK_SIGNING_SECRET
@@ -13,6 +16,14 @@ const dbclient = new Client({
         rejectUnauthorized: false
     }
 });
+
+function GetFormattedDate() {
+    var todayTime = new Date();
+    var month = format(todayTime .getMonth() + 1);
+    var day = format(todayTime .getDate());
+    var year = format(todayTime .getFullYear());
+    return month + "/" + day + "/" + year;
+}
 
 // Listens to incoming messages that contain "hello"
 app.message('remind_me', async ({ message, say }) => {
@@ -54,21 +65,8 @@ app.event('app_mention', async ({ event, say, client }) => {
                 user: uid
             });
             let uname = ret.profile.display_name;
-            const dbres = await dbclient.query('INSERT INTO user_list(userid,username) VALUES($1,$2) RETURNING *', [uid, uname]);
-            if (!dbres) {
-                console.log('Get Error');
-                await say({
-                    blocks: [
-                        {
-                            "type": "section",
-                            "text": {
-                                "type": "mrkdwn",
-                                "text": `User <@${uid}> not added to standup list.`
-                            }
-                        }
-                    ]
-                });
-            }
+            sheets.inp_params = [uid,uname];
+            sheets.adduser();
             await say({
                 blocks: [
                     {
@@ -130,10 +128,12 @@ app.event('app_mention', async ({ event, say, client }) => {
     }
     pos = message.indexOf("get_users");
     if (pos != -1) {
-        const dbres = await dbclient.query('SELECT * FROM user_list');
+        if (! sheets.user_list){
+            console.log('Get Error')
+        }
         var users = "";
-        dbres.rows.forEach(function (element) {
-            users = users.concat(element.username);
+        sheets.user_list.forEach(function (element) {
+            users = users.concat(element[1]);
             users = users.concat('\n');
         });
         try {
@@ -156,15 +156,14 @@ app.event('app_mention', async ({ event, say, client }) => {
 });
 
 app.message('send_reminder', async ({ message, client }) => {
-    const dbres = await dbclient.query('SELECT * FROM user_list');
-    if (!dbres) {
+    if (!sheets.user_list) {
         console.log('Get Error')
     }
     var uid = [];
     var uname = [];
-    dbres.rows.forEach(function (element) {
-        uid.push(element.userid);
-        uname.push(element.username);
+    sheets.user_list.forEach(function (element) {
+        uid.push(element[0]);
+        uname.push(element[1]);
     });
     try {
         for (var i = 0; i < uid.length; i++) {
@@ -200,14 +199,13 @@ app.message('send_rem_update', async ({ message, client }) => {
     if (!dbstdres) {
         console.log('Get Error')
     }
-    const dbres = await dbclient.query('SELECT * FROM user_list');
-    if (!dbres) {
+    if (!sheets.user_list) {
         console.log('Get Error')
     }
     var stduid = [];
     var uid = [];
-    dbres.rows.forEach(function (element) {
-        uid.push(element.userid);
+    sheets.user_list.forEach(function (element) {
+        uid.push(element[0]);
     });
     dbstdres.rows.forEach(function (element) {
         stduid.push(element.userid);
@@ -346,14 +344,8 @@ app.view('view_1', async ({ ack, body, view, client }) => {
     let img = ret.profile.image_original
     const username = body['user']['username'];
     var todaydate = new Date();
-    const dbres = await dbclient.query('INSERT INTO standups(userid,username,yes_task,yes_adhoc,today_task,blocker) VALUES($1,$2,$3,$4,$5,$6) RETURNING *', [user, username, yes_task, yes_adhoc, today_task, blocker])
-    if (dbres) {
-        console.log(dbres.rows[0])
-    }
-    else {
-        console.log('Save Error')
-    }
-    // Message the user
+    sheets.inp_params = [user,username,GetFormattedDate(),yes_task,yes_adhoc,today_task,blocker];
+    sheets.addstandup();
     try {
         await client.chat.postMessage({
             channel: 'C01LX5S6AHM',
@@ -484,7 +476,10 @@ app.view('view_1', async ({ ack, body, view, client }) => {
 
 (async () => {
     // Start your app
+    sheets.getusers();
+    await new Promise(r => setTimeout(r,2000));
+    console.log(sheets.user_list);
+    sheets.adduser();
     await app.start(process.env.PORT || 3000);
-    await dbclient.connect()
     console.log('⚡️ Bolt app is running!');
 })();
