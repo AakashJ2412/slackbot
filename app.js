@@ -92,9 +92,7 @@ app.event('app_mention', async ({ event, say, client }) => {
                 if (uid.localeCompare(sheets.user_list[i][0]) === 0)
                     del_id = i;
             }
-            
-            const dbres = await dbclient.query('DELETE FROM user_list WHERE userid=$1', [uid]);
-            if (dbres === "DELETE 0") {
+            if (del_id === -1) {
                 console.log('User not found');
                 await say({
                     blocks: [
@@ -109,6 +107,8 @@ app.event('app_mention', async ({ event, say, client }) => {
                 });
             }
             else {
+                sheets.inp_params = [del_id];
+                sheets.deluser();
                 await say({
                     blocks: [
                         {
@@ -344,7 +344,7 @@ app.view('view_1', async ({ ack, body, view, client }) => {
     let img = ret.profile.image_original
     const username = body['user']['username'];
     var todaydate = new Date();
-    var inp_dat = GetFormattedDate();
+    var inp_dat = helpers.GetFormattedDate();
     sheets.inp_params = [user,username,inp_dat,yes_task,yes_adhoc,today_task,blocker];
     sheets.addstandup()
     try {
