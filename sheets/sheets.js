@@ -136,10 +136,11 @@ function addstandup() {
 }
 function addstanduplist(auth) {
   if (inp_params == []) {
-    console.log('Error, user not added');
+    console.log('Error, standup not added');
     return -1;
   }
   const sheets = google.sheets({ version: 'v4', auth });
+  console.log('this is', inp_params);
   sheets.spreadsheets.values.append({
     spreadsheetId: '1VzQesOzwkONYPdKOXnZUmWoWDTzCu_W1hvmq9m41MoQ',
     range: 'standups!A2:G',
@@ -173,8 +174,8 @@ function deluserlist(auth) {
     console.log('Error, user not deleted');
     return -1;
   }
-  console.log(inp_params);
   const sheets = google.sheets({ version: 'v4', auth });
+  console.log('in function', inp_params);
   sheets.spreadsheets.batchUpdate({
     spreadsheetId: '1VzQesOzwkONYPdKOXnZUmWoWDTzCu_W1hvmq9m41MoQ',
     resource: {

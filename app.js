@@ -108,7 +108,7 @@ app.event('app_mention', async ({ event, say, client }) => {
             }
             else {
                 sheets.inp_params = [del_id];
-                console.log(del_id);
+                console.log(sheets.inp_params);
                 sheets.deluser();
                 await say({
                     blocks: [
