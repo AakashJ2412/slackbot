@@ -173,6 +173,7 @@ function deluserlist(auth) {
     console.log('Error, user not deleted');
     return -1;
   }
+  console.log(inp_params);
   const sheets = google.sheets({ version: 'v4', auth });
   sheets.spreadsheets.batchUpdate({
     spreadsheetId: '1VzQesOzwkONYPdKOXnZUmWoWDTzCu_W1hvmq9m41MoQ',
@@ -185,8 +186,8 @@ function deluserlist(auth) {
               "range":
               {
                 "sheetId": 0, // gid
-                "startRowIndex": inp_params[0],
-                "endRowIndex": inp_params[0]+1
+                "startRowIndex": inp_params[0]+1,
+                "endRowIndex": inp_params[0]+2
               },
               "shiftDimension": "ROWS"
             }
